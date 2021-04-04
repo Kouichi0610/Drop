@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using System.Text;
 
-namespace Test {
+namespace ProtoType {
     /// <summary>
     /// フィールド試作品
     /// </summary>
