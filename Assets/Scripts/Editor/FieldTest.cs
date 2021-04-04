@@ -27,27 +27,90 @@ namespace Test {
         }
         [Test]
         public void ゲームオーバー判定() {
-            var f = new Field(new FieldSize(3,2));
-            f.Drop(1, Gems.Green);
+            var f = new Field(new FieldSize(5,2));
+            f.Drop(2, Gems.Green);
             Assert.That(f.IsGameOver, Is.False);
-            f.Drop(1, Gems.Green);
+            f.Drop(2, Gems.Green);
             Assert.That(f.IsGameOver, Is.True);
         }
 
         [Test]
         public void EraseField() {
-            var array = new int[,] { {0, 1}, {2, 3}, {4, 5}};
-            Assert.That(array[1,1], Is.EqualTo(3));
-            Assert.That(array.GetLength(0), Is.EqualTo(3));
-            Assert.That(array.GetLength(1), Is.EqualTo(2));
-            var array2 = new int[array.GetLength(0), array.GetLength(1)];
-            Array.Copy(array, array2, array.Length);
-            
+            var f = new EraseField(new int[,]{
+                {1, 1, 2, 2},
+                {1, 0, 2, 7},
+                {1, 3, 2, 8},
+                {1, 4, 5, 9},
+                {1, 1, 6, 9},
+            });
 
-            Assert.That(array[1,1], Is.EqualTo(3));
-            
+            var c = new EraseCount(4);
+
+            var res = f.Erase(c);
+
+            var erasedField = res.Item1;
+            var erasedCount = res.Item2;
+            // 1だけ消えること
+            Assert.That(erasedCount, Is.EqualTo(7));
+            Assert.That(erasedField.ToString(), Is.EqualTo("00220027032804590069"));
         }
 
+        [Test]
+        public void EraseField_消せなかった場合() {
+            var f = new EraseField(new int[,]{
+                {1, 1, 2, 2},
+                {1, 0, 2, 3},
+                {4, 4, 3, 3},
+                {1, 4, 5, 9},
+                {1, 1, 6, 9},
+            });
+            var c = new EraseCount(4);
+            var res = f.Erase(c);
+            var erasedField = res.Item1;
+            var erasedCount = res.Item2;
+            Assert.That(erasedCount, Is.EqualTo(0));
+            Assert.That(erasedField.ToString(), Is.EqualTo("11221023443314591169"));
+        }
+
+        [Test]
+        public void StackFlowチェック() {
+            const int len = 20;
+            var fld = new int[len, len];
+            for (var i = 0; i < len; i++) {
+                for (var j = 0; j < len; j++) {
+                    fld[i,j] = 1;
+                }
+            }
+            var f = new EraseField(fld);
+            var c = new EraseCount(len*len);
+            var erasedCount = f.Erase(c).Item2;
+            Assert.That(erasedCount, Is.EqualTo(len*len));
+        }
+
+        [Test]
+        public void Field消去() {
+            var before = Field.FromArray(new int[,]{
+                {4,4,4,1},
+                {2,3,4,1},
+                {3,3,3,1},
+                {2,7,7,5},
+                {1,7,7,6},
+            });
+            Assert.That(before.ToString(), Is.EqualTo("44412341333127751776"));
+            var c = new EraseCount(4);
+
+            var res = before.ErasedField(c);
+
+            var after = res.Item1;
+            var erasedCount = res.Item2;
+
+            // 揃ったジェムが消えていること
+            Assert.That(erasedCount, Is.EqualTo(12));
+            Assert.That(after.ToString(),  Is.EqualTo("00012001000120051006"));
+
+            // 元インスタンスに影響が無いこと
+            Assert.That(before.ToString(), Is.EqualTo("44412341333127751776"));
+        }
     }
 }
 
