@@ -39,7 +39,6 @@ namespace View {
             int i = 0;
             foreach (var gem in gems) {
                 var g = factory.Rent(gem);
-                g.Initialize(gem);
                 g.transform.SetParent(this.transform);
                 g.transform.localPosition = new Vector3(0, i, 0);
                 this.gems.Add(g);

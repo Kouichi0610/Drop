@@ -4,12 +4,17 @@ using System.Collections;
 namespace View {
     public class Gem : MonoBehaviour
     {
+        public delegate void OnErase(Gem gem);
+
         public Model.Gems GemType { get; private set; }
 
         [SerializeField]
         private Material[] materials;
 
-        public void Initialize(Model.Gems gemType) {
+        OnErase erase = null;
+
+        public void Initialize(Model.Gems gemType, OnErase erase) {
+            this.erase = erase;
             GemType = gemType;
             var r = GetComponent<MeshRenderer>();
             r.material = materials[GemType.Id];
@@ -17,8 +22,9 @@ namespace View {
         }
 
         public IEnumerator Erase(System.Action onComplete) {
-            yield return new WaitForSeconds(1);
-            gameObject.SetActive(false);
+            yield return new WaitForEndOfFrame();
+            erase(this);
+            onComplete();
         }
 
         public IEnumerator DropTo(int y, System.Action onComplete) {

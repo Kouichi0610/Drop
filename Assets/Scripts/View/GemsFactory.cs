@@ -13,11 +13,11 @@ namespace View {
 
         Gem IGemsFactory.Rent(Model.Gems gemType) {
             var res = pool.Rent();
+            res.Initialize(gemType, (Gem gem) => {
+                gem.transform.SetParent(this.transform);
+                pool.Return(gem);
+            });
             return res;
-        }
-        void IGemsFactory.Release(Gem gem) {
-            gem.transform.SetParent(this.transform);
-            pool.Return(gem);
         }
 
         // Start is called before the first frame update

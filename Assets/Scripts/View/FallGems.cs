@@ -41,7 +41,7 @@ namespace View {
                 results.Add(new DropGem(g.GemType, line));
             }
             yield return new WaitUntil(() => count >= gems.Count());
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.3f);
 
             StopCoroutine(coroutine);
             coroutine = null;

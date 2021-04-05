@@ -5,6 +5,5 @@ using UnityEngine;
 namespace View {
     public interface IGemsFactory {
         Gem Rent(Model.Gems gemType);
-        void Release(Gem gem);
     }
 }

@@ -37,8 +37,7 @@ namespace View {
 
                 if (!field.HasGem(x, y)) {
                     eraseCount++;
-                    UnityEngine.Debug.Log("Erase X:" + x + " y:" + y + " " + gem.GemType.Name);
-                    gem.Erase(callback);
+                    StartCoroutine(gem.Erase(callback));
                 }
             }
             yield return new WaitUntil(() => count == eraseCount);
