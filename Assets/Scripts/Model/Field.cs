@@ -7,9 +7,27 @@ namespace Model {
     /// 落下するジェムを保管するフィールド
     /// 
     /// </summary>
-    public sealed class Field {
+    public sealed class Field : IFieldState {
         public int Width { get { return fields.GetLength(1); } }
         public int Height { get { return fields.GetLength(0); } }
+
+        bool IFieldState.HasGem(int x, int y) {
+            return fields[y, x] != 0;
+        }
+        int IFieldState.PiledHeight(int x) {
+            int y = 0;
+            for (y = 0; y < Height; y++) {
+                try {
+                    if (fields[y, x] == 0) {
+                        break;
+                    }
+                } catch(Exception e) {
+                    UnityEngine.Debug.Log("failed X:" + x + " Y:" + y + " W:" + Width + " H:" + Height);
+                }
+            }
+            return y;
+        }
+
 
         /// <summary>
         /// ゲームオーバー判定

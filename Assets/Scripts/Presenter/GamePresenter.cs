@@ -4,6 +4,7 @@ using UnityEngine;
 using Model.Rules;
 using View;
 using Model;
+using UniRx;
 
 namespace Presenter {
     public class GamePresenter : MonoBehaviour
@@ -16,10 +17,14 @@ namespace Presenter {
         [SerializeField, Tooltip("フィールド高さ")]
         int FieldHeight = 0;
         
-        [SerializeField, Tooltip("落下ジェム")]
-        DropGems drop = null;
         [SerializeField, Tooltip("ジェム生成")]
         GemsFactory factory = null;
+        [SerializeField, Tooltip("落下中のジェム操作")]
+        ControllGems controll = null;
+        [SerializeField, Tooltip("落下先決定後の自由落下")]
+        FallGems fall = null;
+
+        Field field = null;
 
         /*
             落とすジェムの生成(*2)
@@ -35,11 +40,17 @@ namespace Presenter {
         void Start()
         {
             var size = new FieldSize(FieldWidth, FieldHeight);
-            drop.SetUp(factory, size);
+            field = new Field(size);
+            controll.SetUp(factory, field);
 
-            // TODO:ランダム生成
-            drop.Initialize(Gems.Red, Gems.Red);
-            
+            controll.Initialize(Gems.Red, Gems.Green);
+
+            controll.OnResult.Subscribe(results => {
+                fall.Initialize(results, field);
+            });
+        }
+
+        void Update() {
         }
     }
 }

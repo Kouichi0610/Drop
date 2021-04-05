@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 7753280205794313875}
   - component: {fileID: 2300760504528394906}
   - component: {fileID: 857992786405947540}
+  - component: {fileID: -1527051238569207129}
   m_Layer: 0
   m_Name: Gem
   m_TagString: Untagged
@@ -46,6 +47,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa4475f06e0f15745aa526f53f05e58b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  materials:
+  - {fileID: 0}
+  - {fileID: 2100000, guid: a4bc739bb19c5cd48aed24374ab88e2f, type: 2}
+  - {fileID: 2100000, guid: 66e06fba9cb9f7f43afdff1bd9cb3f76, type: 2}
+  - {fileID: 2100000, guid: 8584ecbcb8a7ba64bb6d8707e92a2bbc, type: 2}
 --- !u!33 &7753280205794313875
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -65,6 +71,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
@@ -108,3 +115,19 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &-1527051238569207129
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1047717505209596092}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.01
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 122
+  m_CollisionDetection: 0

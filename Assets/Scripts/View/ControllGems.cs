@@ -4,32 +4,39 @@ using UnityEngine;
 using Model;
 using Model.Rules;
 using UniRx;
+using System;
 
 namespace View {
     /// <summary>
-    /// 落下中のジェム、操作
+    /// 落下中のジェム操作
     /// </summary>
-    public class DropGems : MonoBehaviour
+    public class ControllGems : MonoBehaviour
     {
         IGemsFactory factory = null;
         int startX = 0;
         int startY = 0;
-        FieldSize size;
+        IFieldState fieldState = null;
+
+        IEnumerator dropCoroutine = null;
 
         List<Gem> gems = new List<Gem>();
 
+        public IObservable<List<Gem>> OnResult { get { return resultSubject.AsObservable(); } }
 
-        public void SetUp(IGemsFactory factory, FieldSize size) {
+        Subject<List<Gem>> resultSubject = new Subject<List<Gem>>();
+
+        public void SetUp(IGemsFactory factory, IFieldState field) {
             this.factory = factory;
-            this.startX = size.Width/2;
-            this.startY = size.Height;
-            this.size = size;
+            this.startX = field.Width/2;
+            this.startY = field.Height;
+            this.fieldState = field;
         }
 
         public void Initialize(params Gems[] gems) {
             int i = 0;
             foreach (var gem in gems) {
                 var g = factory.Rent(gem);
+                g.Initialize(gem);
                 g.transform.SetParent(this.transform);
                 g.transform.name = "Gem_" + i;
                 g.transform.position = new Vector3(0, i, 0);
@@ -37,7 +44,8 @@ namespace View {
                 i++;
             }
             transform.position = new Vector3(startX, startY, 0);
-            StartCoroutine(Drop());
+            dropCoroutine = Drop();
+            StartCoroutine(dropCoroutine);
         }
 
         IEnumerator Drop() {
@@ -48,10 +56,12 @@ namespace View {
                 var next = new Vector3(current.x, current.y-1, current.z);
                 transform.position = next;
             }
-            yield return null;
+            DecideDrop();
         }
 
         void Update() {
+            if (dropCoroutine == null) return;
+
             if (Input.GetKeyDown(KeyCode.LeftArrow)) {
                 Left();
             } else if (Input.GetKeyDown(KeyCode.RightArrow)) {
@@ -69,6 +79,13 @@ namespace View {
         }
 
         void DecideDrop() {
+            var res = new List<Gem>();
+            foreach (var g in gems) {
+                res.Add(g);
+            }
+            StopCoroutine(dropCoroutine);
+            dropCoroutine = null;
+            resultSubject.OnNext(res);
         }
 
         void Left() {
@@ -93,7 +110,7 @@ namespace View {
 
         void HorizontalClip() {
             var left = 0;
-            var right = size.Width;
+            var right = fieldState.Width-1;
             float append = 0;
 
             foreach (var g in gems) {
@@ -107,11 +124,6 @@ namespace View {
             var next = transform.position;
             next.x = next.x + append;
             transform.position = next;
-        }
-
-        void Start()
-        {
-            
         }
     }
 }
