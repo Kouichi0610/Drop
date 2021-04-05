@@ -12,8 +12,18 @@ namespace View {
     /// </summary>
     public class FallGems : MonoBehaviour
     {
+        public IObservable<DropGems> OnDropped { get { return subject.AsObservable(); } }
+        Subject<DropGems> subject = new Subject<DropGems>();
+
+        IEnumerator coroutine = null;
+
         public void Initialize(IEnumerable<Gem> gems, IFieldState field) {
-            StartCoroutine(WaitFall(gems, field));
+            if (coroutine != null) {
+                StopCoroutine(coroutine);
+                coroutine = null;
+            }
+            coroutine = WaitFall(gems, field);
+            StartCoroutine(coroutine);
         }
 
         IEnumerator WaitFall(IEnumerable<Gem> gems, IFieldState field) {
@@ -21,6 +31,8 @@ namespace View {
             System.Action callback = () => count++;
 
             var sortedGems = gems.OrderBy(g => g.transform.position.y);
+
+            var results = new List<DropGem>();
 
             var prevX = 99;
             foreach (var g in sortedGems) {
@@ -30,17 +42,10 @@ namespace View {
                 if (line == prevX) y++;
                 StartCoroutine(g.DropTo(y, callback));
                 prevX = line;
+                results.Add(new DropGem(g.GemType, line));
             }
-            yield return new WaitUntil(() => count == gems.Count());
-            Debug.Log("Complete.");
-        }
-        
-        void Start()
-        {
-        }
-
-        void Update()
-        {
+            yield return new WaitUntil(() => count >= gems.Count());
+            subject.OnNext(new DropGems(results));
         }
     }
 }

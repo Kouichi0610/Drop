@@ -18,6 +18,7 @@ namespace View {
         IFieldState fieldState = null;
 
         IEnumerator dropCoroutine = null;
+        bool keyActive = false;
 
         List<Gem> gems = new List<Gem>();
 
@@ -33,23 +34,23 @@ namespace View {
         }
 
         public void Initialize(params Gems[] gems) {
+            transform.position = new Vector3(startX, startY, 0);
+            transform.rotation = Quaternion.identity;
             int i = 0;
             foreach (var gem in gems) {
                 var g = factory.Rent(gem);
                 g.Initialize(gem);
                 g.transform.SetParent(this.transform);
-                g.transform.name = "Gem_" + i;
-                g.transform.position = new Vector3(0, i, 0);
+                g.transform.localPosition = new Vector3(0, i, 0);
                 this.gems.Add(g);
                 i++;
             }
-            transform.position = new Vector3(startX, startY, 0);
             dropCoroutine = Drop();
             StartCoroutine(dropCoroutine);
         }
 
         IEnumerator Drop() {
-            // TODO:落下判定
+            keyActive = true;
             while (!IsGround()) {
                 yield return new WaitForSeconds(1);
                 var current = transform.position;
@@ -60,13 +61,15 @@ namespace View {
         }
 
         void Update() {
-            if (dropCoroutine == null) return;
+            if (!keyActive) return;
 
             if (Input.GetKeyDown(KeyCode.LeftArrow)) {
                 Left();
             } else if (Input.GetKeyDown(KeyCode.RightArrow)) {
                 Right();
             } else if (Input.GetKeyDown(KeyCode.DownArrow)) {
+                StopCoroutine(dropCoroutine);
+                dropCoroutine = null;
                 DecideDrop();
             } else if (Input.GetKeyDown(KeyCode.Space)) {
                 Rotate();
@@ -75,17 +78,21 @@ namespace View {
 
         // 設置判定
         bool IsGround() {
-            return transform.position.y <= 0;
+            foreach (var g in gems) {
+                var line = (int)g.transform.position.x;
+                var y = fieldState.PiledHeight(line);
+
+                if (transform.position.y <= y) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         void DecideDrop() {
-            var res = new List<Gem>();
-            foreach (var g in gems) {
-                res.Add(g);
-            }
-            StopCoroutine(dropCoroutine);
-            dropCoroutine = null;
-            resultSubject.OnNext(res);
+            keyActive = false;
+            resultSubject.OnNext(gems);
+            gems.Clear();
         }
 
         void Left() {

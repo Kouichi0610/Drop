@@ -48,6 +48,13 @@ namespace Presenter {
             controll.OnResult.Subscribe(results => {
                 fall.Initialize(results, field);
             });
+
+            fall.OnDropped.Subscribe(result => {
+                foreach (var res in result.List) {
+                    field.Drop(res.Line, res.GemType);
+                }
+                controll.Initialize(Gems.Blue, Gems.Green);
+            });
         }
 
         void Update() {

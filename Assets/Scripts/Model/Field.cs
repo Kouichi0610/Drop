@@ -17,12 +17,8 @@ namespace Model {
         int IFieldState.PiledHeight(int x) {
             int y = 0;
             for (y = 0; y < Height; y++) {
-                try {
-                    if (fields[y, x] == 0) {
-                        break;
-                    }
-                } catch(Exception e) {
-                    UnityEngine.Debug.Log("failed X:" + x + " Y:" + y + " W:" + Width + " H:" + Height);
+                if (fields[y, x] == 0) {
+                    break;
                 }
             }
             return y;
