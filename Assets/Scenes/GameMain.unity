@@ -465,7 +465,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   EraseCount: 4
-  FieldWidth: 8
+  FieldWidth: 2
   FieldHeight: 10
   drop: {fileID: 349554316}
   factory: {fileID: 387591609}
