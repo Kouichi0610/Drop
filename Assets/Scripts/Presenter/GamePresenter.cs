@@ -23,6 +23,8 @@ namespace Presenter {
         ControllGems controll = null;
         [SerializeField, Tooltip("落下先決定後の自由落下")]
         FallGems fall = null;
+        [SerializeField, Tooltip("揃ったジェムの消去、コンボ、得点")]
+        EraseGems erase = null;
 
         Field field = null;
 
@@ -40,6 +42,7 @@ namespace Presenter {
         void Start()
         {
             var size = new FieldSize(FieldWidth, FieldHeight);
+            var count = new EraseCount(this.EraseCount);
             field = new Field(size);
             controll.SetUp(factory, field);
 
@@ -49,11 +52,31 @@ namespace Presenter {
                 fall.Initialize(results, field);
             });
 
+            int combo = 0;
             fall.OnDropped.Subscribe(result => {
                 foreach (var res in result.List) {
                     field.Drop(res.Line, res.GemType);
                 }
-                controll.Initialize(Gems.Blue, Gems.Green);
+                combo = 0;
+                var erased = field.ErasedField(count);
+                var erasedCount = erased.Item2;
+                if (erasedCount == 0) {
+                    controll.Initialize(Gems.Blue, Gems.Green);
+                    return;
+                }
+                field = erased.Item1;
+                erase.Initialize(fall.transform, field);
+            });
+            erase.OnErased.Subscribe(_ => {
+                var erased = field.ErasedField(count);
+                var erasedCount = erased.Item2;
+                field = erased.Item1;
+                if (erasedCount == 0) {
+                    controll.Initialize(Gems.Blue, Gems.Green);
+                    return;
+                }
+                combo++;
+                erase.Initialize(fall.transform, field);
             });
         }
 

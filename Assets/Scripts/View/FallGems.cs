@@ -18,10 +18,6 @@ namespace View {
         IEnumerator coroutine = null;
 
         public void Initialize(IEnumerable<Gem> gems, IFieldState field) {
-            if (coroutine != null) {
-                StopCoroutine(coroutine);
-                coroutine = null;
-            }
             coroutine = WaitFall(gems, field);
             StartCoroutine(coroutine);
         }
@@ -45,6 +41,11 @@ namespace View {
                 results.Add(new DropGem(g.GemType, line));
             }
             yield return new WaitUntil(() => count >= gems.Count());
+            yield return new WaitForSeconds(0.5f);
+
+            StopCoroutine(coroutine);
+            coroutine = null;
+
             subject.OnNext(new DropGems(results));
         }
     }

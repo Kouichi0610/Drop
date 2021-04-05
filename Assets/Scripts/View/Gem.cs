@@ -13,6 +13,12 @@ namespace View {
             GemType = gemType;
             var r = GetComponent<MeshRenderer>();
             r.material = materials[GemType.Id];
+            gameObject.SetActive(true);
+        }
+
+        public IEnumerator Erase(System.Action onComplete) {
+            yield return new WaitForSeconds(1);
+            gameObject.SetActive(false);
         }
 
         public IEnumerator DropTo(int y, System.Action onComplete) {
